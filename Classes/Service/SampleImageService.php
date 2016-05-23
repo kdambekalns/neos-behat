@@ -46,7 +46,7 @@ class SampleImageService {
 		$result = $query->matching($query->equals('resource.filename', $name))->execute();
 		$image = null;
 		if (!($result && ($image = $result->getFirst()))) {
-			$image = new Image($this->resourceManager->importResource(sprintf('resource://CRON.DazSite/Tests/Behat/Resources/Images/%s', $name)));
+			$image = new Image($this->resourceManager->importResource(sprintf('resource://CRON.Behat/Resources/Images/%s', $name)));
 			$this->imageRepository->add($image);
 			$this->persistenceManager->persistAll();
 		}
