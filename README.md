@@ -3,6 +3,66 @@ Abstract
 
 This package contains some useful add-ons and bugfixes/workarounds for using Behat-Tests in Neos projects.
 
+## Installation and Setup
+
+### Install
+
+This package is currently not available via Packagist, configure the repo in `composer.json`:
+
+```
+	"repositories": [
+		{
+			"type": "git",
+			"url": "git@github.com:cron-eu/neos-behat.git"
+		}
+	]
+```
+
+Then use composer to install this package:
+
+```
+composer require cron/neos-behat:dev-master
+```
+
+### Setup
+
+Create the file `Tests/Behavior/Features/Bootstram/FeatureContext.php` with this content:
+
+```
+<?php
+
+require_once(__DIR__ . '/../../../../../../Application/CRON.Behat/Tests/Behat/FeatureContextBase.php');
+
+class FeatureContext extends \CRON\Behat\FeatureContextBase {
+
+}
+```
+
+#### Example Scenario
+
+This scenario imports the site package and ensure that the Root-Page is reachable without throwing any exceptions.
+
+File: `Tests/Behavior/Features/Example.feature`
+
+```
+@browser
+Feature: Basic Features
+
+  Background: Import Demo-Content
+    Given I imported the site "MY.Package"
+
+  @fixtures @remote
+  Scenario: Call the Root-Page of the Site Package
+    Given I go to "/"
+    Then the response status code should be 200
+    And I should not see "Exception"
+```
+
+### Run the Example.feature
+
+```
+bin/behat -c Packages/Sites/My.Site/Tests/Behavior/behat.yml Packages/Sites/My.Site/Tests/Behavior/Features/Example.feature
+```
 
 ## Behat and Unit/Functional Tests with million12 Docker Setup
 
