@@ -4,8 +4,7 @@ Abstract
 This package contains some useful add-ons and bugfixes/workarounds for using Behat-Tests in Neos projects.
 
 
-Behat and Unit/Functional Tests with million12 Docker Setup
-===========================================================
+## Behat and Unit/Functional Tests with million12 Docker Setup
 
 ### Install required dev dependencies
 
