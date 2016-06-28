@@ -16,6 +16,7 @@ use PHPUnit_Framework_Assert as Assert;
 require_once(__DIR__ . '/FlowContext.php');
 require_once(__DIR__ . '/NeosTrait.php');
 require_once(__DIR__ . '/../../../../Framework/TYPO3.Flow/Tests/Behavior/Features/Bootstrap/IsolatedBehatStepsTrait.php');
+require_once(__DIR__ . '/../../../../Framework/TYPO3.Flow/Tests/Behavior/Features/Bootstrap/SecurityOperationsTrait.php');
 
 if (file_exists(__DIR__ . '/../../../../Application/TYPO3.TYPO3CR/Tests/Behavior/Features/Bootstrap/NodeOperationsTrait.php')) {
 	require_once(__DIR__ . '/../../../../Application/TYPO3.TYPO3CR/Tests/Behavior/Features/Bootstrap/NodeOperationsTrait.php');	
@@ -34,6 +35,7 @@ class FeatureContextBase extends \Behat\MinkExtension\Context\MinkContext {
 
 	use \TYPO3\TYPO3CR\Tests\Behavior\Features\Bootstrap\NodeOperationsTrait;
 	use \TYPO3\Flow\Tests\Behavior\Features\Bootstrap\IsolatedBehatStepsTrait;
+	use \TYPO3\Flow\Tests\Behavior\Features\Bootstrap\SecurityOperationsTrait;	
 	use NeosTrait;
 
 	/**
@@ -61,6 +63,7 @@ class FeatureContextBase extends \Behat\MinkExtension\Context\MinkContext {
 	public function __construct(array $parameters) {
 		$this->useContext('flow', new FlowContext($parameters));
 		$this->objectManager = $this->getSubcontext('flow')->getObjectManager();
+		$this->setupSecurity();
 	}
 
 	/**
