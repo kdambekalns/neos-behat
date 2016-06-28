@@ -16,8 +16,12 @@ use PHPUnit_Framework_Assert as Assert;
 require_once(__DIR__ . '/FlowContext.php');
 require_once(__DIR__ . '/NeosTrait.php');
 require_once(__DIR__ . '/../../../../Framework/TYPO3.Flow/Tests/Behavior/Features/Bootstrap/IsolatedBehatStepsTrait.php');
-require_once(__DIR__ . '/../../../../Neos/TYPO3.TYPO3CR/Tests/Behavior/Features/Bootstrap/NodeOperationsTrait.php');
 
+if (file_exists(__DIR__ . '/../../../../Application/TYPO3.TYPO3CR/Tests/Behavior/Features/Bootstrap/NodeOperationsTrait.php')) {
+	require_once(__DIR__ . '/../../../../Application/TYPO3.TYPO3CR/Tests/Behavior/Features/Bootstrap/NodeOperationsTrait.php');	
+} else {
+	require_once(__DIR__ . '/../../../../Neos/TYPO3.TYPO3CR/Tests/Behavior/Features/Bootstrap/NodeOperationsTrait.php');
+}
 /**
  * Class FeatureContextBase
  *
