@@ -14,43 +14,47 @@ use TYPO3\Media\Domain\Model\Image;
 /**
  * @Flow\Scope("singleton")
  */
-class SampleImageService {
+class SampleImageService
+{
 
-	/**
-	 * @Flow\Inject
-	 * @var \TYPO3\Flow\Resource\ResourceManager
-	 */
-	protected $resourceManager;
+    /**
+     * @Flow\Inject
+     * @var \TYPO3\Flow\Resource\ResourceManager
+     */
+    protected $resourceManager;
 
-	/**
-	 * Inject PersistenceManagerInterface
-	 *
-	 * @Flow\Inject
-	 * @var \TYPO3\Flow\Persistence\PersistenceManagerInterface
-	 */
-	protected $persistenceManager;
+    /**
+     * Inject PersistenceManagerInterface
+     *
+     * @Flow\Inject
+     * @var \TYPO3\Flow\Persistence\PersistenceManagerInterface
+     */
+    protected $persistenceManager;
 
-	/**
-	 * @Flow\Inject
-	 * @var \TYPO3\Media\Domain\Repository\ImageRepository
-	 */
-	protected $imageRepository;
+    /**
+     * @Flow\Inject
+     * @var \TYPO3\Media\Domain\Repository\ImageRepository
+     */
+    protected $imageRepository;
 
-	/**
-	 * @param string $name image name (from Resources/Images)
-	 *
-	 * @return \TYPO3\Media\Domain\Model\ImageInterface
-	 */
-	public function getSampleImage($name) {
-		$query = $this->imageRepository->createQuery();
-		$result = $query->matching($query->equals('resource.filename', $name))->execute();
-		$image = null;
-		if (!($result && ($image = $result->getFirst()))) {
-			$image = new Image($this->resourceManager->importResource(sprintf('resource://CRON.Behat/Resources/Images/%s', $name)));
-			$this->imageRepository->add($image);
-			$this->persistenceManager->persistAll();
-		}
-		return $image;
-	}
+    /**
+     * @param string $name image name (from Resources/Images)
+     *
+     * @return \TYPO3\Media\Domain\Model\ImageInterface
+     */
+    public function getSampleImage($name)
+    {
+        $query = $this->imageRepository->createQuery();
+        $result = $query->matching($query->equals('resource.filename', $name))->execute();
+        $image = null;
+        if (!($result && ($image = $result->getFirst()))) {
+            $image = new Image($this->resourceManager->importResource(sprintf('resource://CRON.Behat/Resources/Images/%s',
+                $name)));
+            $this->imageRepository->add($image);
+            $this->persistenceManager->persistAll();
+        }
+
+        return $image;
+    }
 
 }
