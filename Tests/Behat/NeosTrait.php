@@ -12,210 +12,227 @@ use Behat\Gherkin\Node\TableNode;
 use CRON\Behat\Service\SampleImageService;
 use PHPUnit_Framework_Assert as Assert;
 
-trait NeosTrait {
+trait NeosTrait
+{
 
-	protected $context = null;
+    protected $context = null;
 
-	/**
-	 * @return \TYPO3\Neos\Domain\Service\ContentContext
-	 */
-	protected function getContext() {
+    /**
+     * @return \TYPO3\Neos\Domain\Service\ContentContext
+     */
+    protected function getContext()
+    {
 
-		if ($this->context === null) {
-			/** @var \TYPO3\Neos\Domain\Repository\SiteRepository $siteRepository */
-			$siteRepository = $this->objectManager->get(\TYPO3\Neos\Domain\Repository\SiteRepository::class);
+        if ($this->context === null) {
+            /** @var \TYPO3\Neos\Domain\Repository\SiteRepository $siteRepository */
+            $siteRepository = $this->objectManager->get(\TYPO3\Neos\Domain\Repository\SiteRepository::class);
 
-			/** @var \TYPO3\TYPO3CR\Domain\Service\ContextFactoryInterface $contextFactory */
-			$contextFactory = $this->objectManager->get(\TYPO3\TYPO3CR\Domain\Service\ContextFactoryInterface::class);
-			$this->context = $contextFactory->create([
-				'currentSite' => $siteRepository->findFirstOnline(),
-				'invisibleContentShown' => true,
-			]);
-		}
+            /** @var \TYPO3\TYPO3CR\Domain\Service\ContextFactoryInterface $contextFactory */
+            $contextFactory = $this->objectManager->get(\TYPO3\TYPO3CR\Domain\Service\ContextFactoryInterface::class);
+            $this->context = $contextFactory->create([
+                'currentSite' => $siteRepository->findFirstOnline(),
+                'invisibleContentShown' => true,
+            ]);
+        }
 
-		return $this->context;
-	}
+        return $this->context;
+    }
 
-	/** @var \TYPO3\TYPO3CR\Domain\Model\NodeInterface */
-	protected $node = null;
-	/** @var string */
-	protected $nodeIdentifier = null;
+    /** @var \TYPO3\TYPO3CR\Domain\Model\NodeInterface */
+    protected $node = null;
+    /** @var string */
+    protected $nodeIdentifier = null;
 
-	/**
-	 * @return \TYPO3\TYPO3CR\Domain\Model\NodeInterface
-	 */
-	protected function getNode() {
-		if ($this->node === null && $this->nodeIdentifier !== null) {
-			$this->node = $this->getContext()->getNodeByIdentifier($this->nodeIdentifier);
-		}
+    /**
+     * @return \TYPO3\TYPO3CR\Domain\Model\NodeInterface
+     */
+    protected function getNode()
+    {
+        if ($this->node === null && $this->nodeIdentifier !== null) {
+            $this->node = $this->getContext()->getNodeByIdentifier($this->nodeIdentifier);
+        }
 
-		return $this->node;
-	}
+        return $this->node;
+    }
 
-	protected function setNode(\TYPO3\TYPO3CR\Domain\Model\NodeInterface $node) {
-		$this->node = $node;
-		$this->nodeIdentifier = $node->getIdentifier();
-	}
+    protected function setNode(\TYPO3\TYPO3CR\Domain\Model\NodeInterface $node)
+    {
+        $this->node = $node;
+        $this->nodeIdentifier = $node->getIdentifier();
+    }
 
-	protected $nodeTypeManager;
+    protected $nodeTypeManager;
 
-	/**
-	 * @return \TYPO3\TYPO3CR\Domain\Service\NodeTypeManager
-	 */
-	protected function getNodeTypeManager() {
-		if ($this->nodeTypeManager === null) {
-			$this->nodeTypeManager = $this->objectManager->get(\TYPO3\TYPO3CR\Domain\Service\NodeTypeManager::class);
-		}
+    /**
+     * @return \TYPO3\TYPO3CR\Domain\Service\NodeTypeManager
+     */
+    protected function getNodeTypeManager()
+    {
+        if ($this->nodeTypeManager === null) {
+            $this->nodeTypeManager = $this->objectManager->get(\TYPO3\TYPO3CR\Domain\Service\NodeTypeManager::class);
+        }
 
-		return $this->nodeTypeManager;
-	}
+        return $this->nodeTypeManager;
+    }
 
-	/**
-	 * Gets an existing node or page on path
-	 *
-	 * @param $path string absolute path, relative to /sites/my-site-name, e.g. /home
-	 *
-	 * @return \TYPO3\TYPO3CR\Domain\Model\NodeInterface
-	 */
-	protected function getNodeForPath($path) {
-		$path = strpos('/sites', $path) === 0 ? $path : $this->getContext()->getCurrentSiteNode()->getPath() . $path;
-		return $this->getContext()->getNode($path);
-	}
+    /**
+     * Gets an existing node or page on path
+     *
+     * @param $path string absolute path, relative to /sites/my-site-name, e.g. /home
+     *
+     * @return \TYPO3\TYPO3CR\Domain\Model\NodeInterface
+     */
+    protected function getNodeForPath($path)
+    {
+        $path = strpos('/sites', $path) === 0 ? $path : $this->getContext()->getCurrentSiteNode()->getPath() . $path;
 
-	protected function persist() {
-		$this->getSubcontext('flow')->persistAll();
-		$this->resetNodeInstances();
-		$this->node = null;
-		$this->context = null;
-	}
+        return $this->getContext()->getNode($path);
+    }
 
-	/**
-	 * Map a String Value to the corresponding Neos Object
-	 *
-	 * @param $propertyName string
-	 * @param $stringInput string
-	 *
-	 * @return mixed
-	 */
-	protected function propertyMapper($propertyName, $stringInput) {
+    protected function persist()
+    {
+        $this->getSubcontext('flow')->persistAll();
+        $this->resetNodeInstances();
+        $this->node = null;
+        $this->context = null;
+    }
 
-		if ($stringInput === 'NULL') {
-			return null;
-		}
+    /**
+     * Map a String Value to the corresponding Neos Object
+     *
+     * @param $propertyName string
+     * @param $stringInput string
+     *
+     * @return mixed
+     */
+    protected function propertyMapper($propertyName, $stringInput)
+    {
 
-		switch ($this->getNode()->getNodeType()->getConfiguration('properties.' . $propertyName . '.type')) {
+        if ($stringInput === 'NULL') {
+            return null;
+        }
 
-		case 'references':
-			$value = array_map(function ($path) { return $this->getNodeForPath($path); }, preg_split('/,\w*/', $stringInput));
-			break;
+        switch ($this->getNode()->getNodeType()->getConfiguration('properties.' . $propertyName . '.type')) {
 
-		case 'reference':
-			$value = $this->getNodeForPath($stringInput);
-			break;
+            case 'references':
+                $value = array_map(function ($path) { return $this->getNodeForPath($path); },
+                    preg_split('/,\w*/', $stringInput));
+                break;
 
-		case 'DateTime':
-			$value = new \DateTime($stringInput);
-			break;
+            case 'reference':
+                $value = $this->getNodeForPath($stringInput);
+                break;
 
-		case 'integer':
-			$value = intval($stringInput);
-			break;
+            case 'DateTime':
+                $value = new \DateTime($stringInput);
+                break;
 
-		case 'boolean':
-			$value = boolval($stringInput);
-			break;
+            case 'integer':
+                $value = intval($stringInput);
+                break;
 
-		case \TYPO3\Media\Domain\Model\ImageInterface::class:
-			if ($stringInput) {
-				/** @var SampleImageService $imageService */
-				$imageService = $this->objectManager->get(SampleImageService::class);
-				$value = $imageService->getSampleImage($stringInput);
-			} else {
-				$value = null;
-			}
+            case 'boolean':
+                $value = boolval($stringInput);
+                break;
 
-			break;
+            case \TYPO3\Media\Domain\Model\ImageInterface::class:
+                if ($stringInput) {
+                    /** @var SampleImageService $imageService */
+                    $imageService = $this->objectManager->get(SampleImageService::class);
+                    $value = $imageService->getSampleImage($stringInput);
+                } else {
+                    $value = null;
+                }
 
-		default:
-			$value = $stringInput;
-			break;
-		}
+                break;
 
-		return $value;
-	}
+            default:
+                $value = $stringInput;
+                break;
+        }
 
-	/**
-	 * @When /^I set the page properties:$/
-	 */
-	public function iSetThePageProperties(TableNode $table) {
-		Assert::assertNotNull($this->getNode());
-		foreach ($table->getRows() as $row) {
-			list($propertyName, $propertyValue) = $row;
-			$value = $this->propertyMapper($propertyName, $propertyValue);
-			$this->getNode()->setProperty($propertyName, $value);
-		}
+        return $value;
+    }
 
-		$this->persist();
-		$this->clearContentCache();
-	}
+    /**
+     * @When /^I set the page properties:$/
+     */
+    public function iSetThePageProperties(TableNode $table)
+    {
+        Assert::assertNotNull($this->getNode());
+        foreach ($table->getRows() as $row) {
+            list($propertyName, $propertyValue) = $row;
+            $value = $this->propertyMapper($propertyName, $propertyValue);
+            $this->getNode()->setProperty($propertyName, $value);
+        }
 
-	/**
-	 * @Given /^I create a new Page "([^"]*)" of type "([^"]*)" on path "([^"]*)"$/
-	 */
-	public function iCreateANewPageOfTypeOnPath($title, $type, $path) {
-		$type = $this->getNodeTypeManager()->getNodeType($type);
-		$folder = $this->getNodeForPath($path);
-		$this->setNode($folder->createNode($title, $type));
-		$this->persist();
-	}
+        $this->persist();
+        $this->clearContentCache();
+    }
 
-	/**
-	 * @Given /^I should have a Page of type "([^"]*)" on path "([^"]*)"$/
-	 */
-	public function iShouldHaveAPageOfTypeOnPath($nodeType, $path) {
-		$node = $this->getNodeForPath($path);
-		Assert::assertNotNull($node);
-		Assert::assertTrue($node->getNodeType()->isOfType($nodeType));
-		$this->setNode($node);
-	}
+    /**
+     * @Given /^I create a new Page "([^"]*)" of type "([^"]*)" on path "([^"]*)"$/
+     */
+    public function iCreateANewPageOfTypeOnPath($title, $type, $path)
+    {
+        $type = $this->getNodeTypeManager()->getNodeType($type);
+        $folder = $this->getNodeForPath($path);
+        $this->setNode($folder->createNode($title, $type));
+        $this->persist();
+    }
 
-	/**
-	 * @Then /^I should get the page properties:$/
-	 */
-	public function iShouldGetThePageProperties(TableNode $table) {
-		Assert::assertNotNull($this->getNode());
-		foreach ($table->getRows() as $row) {
-			list($propertyName, $propertyValue) = $row;
-			Assert::assertTrue($this->getNode()->hasProperty($propertyName));
-			$expectedValue = $this->propertyMapper($propertyName, $propertyValue);
-			Assert::assertEquals($this->getNode()->getProperty($propertyName), $expectedValue);
-		}
-	}
+    /**
+     * @Given /^I should have a Page of type "([^"]*)" on path "([^"]*)"$/
+     */
+    public function iShouldHaveAPageOfTypeOnPath($nodeType, $path)
+    {
+        $node = $this->getNodeForPath($path);
+        Assert::assertNotNull($node);
+        Assert::assertTrue($node->getNodeType()->isOfType($nodeType));
+        $this->setNode($node);
+    }
 
-	/**
-	 * @When /^I (un|)hide the Page$/
-	 */
-	public function iHideThePage($unhide) {
-		Assert::assertNotNull($this->getNode());
-		$this->getNode()->setHidden(!$unhide);
-		$this->persist();
-	}
+    /**
+     * @Then /^I should get the page properties:$/
+     */
+    public function iShouldGetThePageProperties(TableNode $table)
+    {
+        Assert::assertNotNull($this->getNode());
+        foreach ($table->getRows() as $row) {
+            list($propertyName, $propertyValue) = $row;
+            Assert::assertTrue($this->getNode()->hasProperty($propertyName));
+            $expectedValue = $this->propertyMapper($propertyName, $propertyValue);
+            Assert::assertEquals($this->getNode()->getProperty($propertyName), $expectedValue);
+        }
+    }
 
-	/**
-	 * @When /^I move the Page into "([^"]*)"$/
-	 */
-	public function iMoveThePageInto($path) {
-		Assert::assertNotNull($this->getNode());
-		$moveInto = $this->getNodeForPath($path);
-		Assert::assertNotNull($moveInto, 'target path cannot be resolved');
-		$this->getNode()->moveInto($moveInto);
-		$this->persist();
-	}
+    /**
+     * @When /^I (un|)hide the Page$/
+     */
+    public function iHideThePage($unhide)
+    {
+        Assert::assertNotNull($this->getNode());
+        $this->getNode()->setHidden(!$unhide);
+        $this->persist();
+    }
 
-	/**
-	 * @Given /^I wait (\d+) second(?:|s)$/
-	 */
-	public function iWaitSecond($seconds) {
-		sleep($seconds);
-	}
+    /**
+     * @When /^I move the Page into "([^"]*)"$/
+     */
+    public function iMoveThePageInto($path)
+    {
+        Assert::assertNotNull($this->getNode());
+        $moveInto = $this->getNodeForPath($path);
+        Assert::assertNotNull($moveInto, 'target path cannot be resolved');
+        $this->getNode()->moveInto($moveInto);
+        $this->persist();
+    }
+
+    /**
+     * @Given /^I wait (\d+) second(?:|s)$/
+     */
+    public function iWaitSecond($seconds)
+    {
+        sleep($seconds);
+    }
 }
