@@ -274,25 +274,30 @@ class FeatureContextBase extends \Behat\MinkExtension\Context\MinkContext
     }
 
     /**
-     * @Given /^I open the Date Picker$/
+     * @Given /^I open the Date Picker (\d+)$/
      */
-    public function iOpenTheDatePicker()
+    public function iOpenTheDatePicker($nth = 1)
     {
         // wait for the date picker to be fully loaded
         $this->getSession()->wait(10000, '$("#neos-inspector input.neos-editor-datetimepicker-hrvalue").length > 0');
-        $this->assertSession()->elementExists('css', '.neos-editor-datetimepicker-hrvalue',
+
+        // scroll to it, if not visible yet (else we cannot click on it)
+        $this->getSession()->executeScript('$("#neos-inspector input.neos-editor-datetimepicker-hrvalue")[' . ($nth-1) . '].scrollIntoView(true);');
+
+        $this->assertSession()->elementExists('xpath', '(//div[@class="neos-inspector-datetime-editor"])[' . $nth . ']//input[contains(@class, "neos-editor-datetimepicker-hrvalue")]',
             $this->selectedContentElement)->click();
+
         // wait to fully expand
         $this->getSession()->wait(10000, '$("#neos-inspector div.neos-editor-datetimepicker").is(":visible")');
     }
 
     /**
-     * @Given /^click on Today in the Date Picker$/
+     * @Given /^click on Today in the Date Picker (\d+)$/
      */
-    public function clickOnTodayInTheDatePicker()
+    public function clickOnTodayInTheDatePicker($nth = 1)
     {
         $this->getSession()->wait(10000, '$(".neos-datetimepicker-days .neos-today").is(":visible")');
-        $this->assertSession()->elementExists('css', '.neos-datetimepicker-days .neos-today',
+        $this->assertSession()->elementExists('xpath', '(//div[contains(@class,"date-time-editor")])[' . $nth . ']//div[contains(@class,"neos-datetimepicker-days")]//th[contains(@class, "neos-today")]',
             $this->selectedContentElement)->click();
     }
 
